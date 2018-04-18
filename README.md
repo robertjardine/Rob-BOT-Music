@@ -1,5 +1,9 @@
 # Rob-BOT-Music
 
+************************** Good Video *************************
+********* https://www.youtube.com/watch?v=9Hz3P1VgLz4 *********
+***************************************************************
+
 Sprint Goals: (#scrumcity)
   Need all song info - Merge the following and write to file for later use.
     tracks/{id}
