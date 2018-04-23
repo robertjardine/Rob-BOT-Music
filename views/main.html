@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Let's Listen! - Rob-BOT</title>
+        <meta charset='UTF-8'/>
+        <meta http-equiv='X-UA-Compatible' content='IE=edge'/> 
+        <meta name='viewport' content="width=device-width" initial-scale=1/>
+
+        <link rel='stylesheet' type='text/css' href='https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css'/>
+        <link rel="stylesheet" href="../css/main.css"/>
+        
+        <script src='https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js'></script>
+        <script src='https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js'></script>
+    </head>
+    <body>
+
+        <!-- Left Sidebar With Generated Playlist Information -->
+        <div id="left-sidebar">
+            <div id="current-playlist">
+                <p>Hello</p>
+                <!-- Loop through playlist and populate items on load/update -->
+            </div>
+        </div>
+
+        <div id="main-content">
+            <!-- Multiple Tabs for Song Info -->
+            <div id="tabs">
+                <div class="row text-center">
+                    <div class="col-lg-3"></div>
+                    <div class="col-lg-2"><span>Playing</span></div>
+                    <div class="col-lg-2"><span>Artist</span></div>
+                    <div class="col-lg-2"><span>Album</span></div>
+                    <div class="col-lg-3"></div>
+                </div>
+            </div>
+
+            <div>
+                <!-- Current Song Information -->
+                    <!-- New Generated Name Information -->
+                    <!-- Default Visible -->
+                <div id="current-song">
+                    <h1>NAME OF SONG</h1>
+                    <h3>ARTIST NAME</h3>
+                    <h3>ALBUM NAME</h3>
+                    <div id="album-art"></div>
+        
+                    <!-- Match Background To Album Color Gradient -->
+                </div>
+
+                <!-- Default Hidden -->
+                <div id="artist-tab">
+                    
+                </div>
+                
+                <!-- Default Hidden -->
+                <div id="album-tab">
+    
+                </div>
+            </div>
+
+            <!-- Play/Rating Bar -->
+                <!-- Update Neural Network After Being Rated -->
+            <div id="song-controls">
+                <div id="like-dislike">
+                    <!-- On-Click Update The Neural Network And Playlist -->
+                        <!-- Do Asynchronous (Promise/Callback) For Better User Experience -->
+                        <iframe src="https://open.spotify.com/embed?uri=spotify:track:58AygtvW5GvLn0X3olPF2d" width="600" height="80" frameborder="0" allowtransparency="true" allow="encrypted-media"></iframe>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>
