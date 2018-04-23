@@ -27,12 +27,12 @@ var authOptions = {
 
 request.post(authOptions, function(error, response, body) {
 	var results = [];
-	for(var letter in alphabet) {
+	for(var j=0; j<26; j++) {
 		for(var i=0; i<2; i++) {
 			// use the access token to access the Spotify Web API
 			var token = body.access_token;
 			var options = {
-			  url: 'https://api.spotify.com/v1/search?q=artist:' + letter + '*&type=artist&market=US&limit=50&offset=' + (10000 + i*50),
+			  url: 'https://api.spotify.com/v1/search?q=artist:' + alphabet[j] + '*&type=artist&market=US&limit=50&offset=' + (10000 + i*50),
 			  headers: {
 				'Authorization': 'Bearer ' + token
 			  },
