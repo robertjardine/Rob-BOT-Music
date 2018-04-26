@@ -2,6 +2,7 @@
  * There's no way this file could be written any better
  */
 const fs = require('fs');
+var sync = require('sync');
 var ids = [];
 var lineReader = require('readline').createInterface({
   input: require('fs').createReadStream('../artistIDList.txt')
@@ -31,14 +32,14 @@ var authOptions = {
 request.post(authOptions, function(error, response, body) {
 	var alphabet = 'abcdefghijklmnopqrstuvwxyz';
 	var results = [];
-	for(var j=0; j<2600; j++) {
-        sleep(1000);
+	for(var j=0; j<200; j++) {
+        sync(sleep(10000));
 		var filename = "topSongs.txt";
         var currentArtistID = ids[j];
         // use the access token to access the Spotify Web API
         var token = body.access_token;
         var options = {
-          url: 'https://api.spotify.com/v1/artists/'+currentArtistID,
+          url: 'https://api.spotify.com/v1/artists/'+currentArtistID+"/top-tracks?country=US",
           headers: {
             'Authorization': 'Bearer ' + token
           },
@@ -65,5 +66,5 @@ request.post(authOptions, function(error, response, body) {
 	
 });
 function sleep(millis) {
-    return new Promise(resolve => setTimeout(resolve, millis));
+    return sync(new Promise(resolve => setTimeout(resolve, millis)));
 }
