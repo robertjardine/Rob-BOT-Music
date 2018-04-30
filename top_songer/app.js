@@ -34,7 +34,7 @@ var authOptions = {
 limiter.submit(request.post,authOptions,function(error, response, body) {
 	var alphabet = 'abcdefghijklmnopqrstuvwxyz';
 	var results = [];
-	for(var j=0; j<200; j++) {
+	for(var j=0; j<2000; j++) { // NOTICE: HARDCODED VALUE, CHANGE WITH CHANGES TO artistIDList.txt LENGTH
 		var filename = "topSongs.txt";
         var currentArtistID = ids[j];
         // use the access token to access the Spotify Web API
