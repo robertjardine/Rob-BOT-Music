@@ -10,3 +10,7 @@ spotipy_start/timeoutSearch.txt
 spotipy_start/artistIDListTimeout.txt
 spotipy_start/topSongsJSONTimeout.txt
 spotipy_start/audioFeatures.txt
+spotipy_start/audioFeaturesTimeout.txt
+spotipy_start/songIDListTimeout.txt
+spotipy_start/lyricData.txt
+spotipy_start/lyricDataOld.txt
