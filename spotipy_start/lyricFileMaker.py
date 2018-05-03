@@ -1,6 +1,8 @@
 import json
-import tswift
+import lyricwikia
 import random
+
+# https://github.com/enricobacis/lyricwikia
 
 thisLineJSON = {}
 
@@ -15,11 +17,15 @@ with open('topSongsJSONTimeout.txt','r') as f, open('lyricData.txt','w',errors='
                 thisLineJSON['songID'] = thisElement['id']
                 thisLineJSON['duration'] = thisElement['duration_ms']
                 for thisArtist in thisElement['album']['artists']:
-                    artistObject = tswift.Artist(thisArtist['name'])
-                    print(artistObject.songs)
-                    #thisLineJSON['lyrics'] = tswift.Song(thisArtist['name'],thisElement['name']).format()
+                    artistName = thisArtist['name']
+                    songName = thisElement['name']
+                    try:
+                        lyrics = lyricwikia.get_lyrics(artistName,songName,linesep='\n',timeout=None)
+                    except:
+                        print('lyric error: not found for ' + songName + ' by ' + artistName)
+                        lyrics = ""
+                    thisLineJSON['lyrics'] = lyrics
                     thisLineJSON['artistName'] = thisArtist['name']
                     thisLineJSON['artistID'] = thisArtist['id']
                 g.write(json.dumps(thisLineJSON))
                 g.write('\n')
-        break
