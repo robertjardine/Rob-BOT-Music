@@ -14,3 +14,7 @@ spotipy_start/audioFeaturesTimeout.txt
 spotipy_start/songIDListTimeout.txt
 spotipy_start/lyricData.txt
 spotipy_start/lyricDataOld.txt
+spotipy_start/audioFeaturesTimeout2.txt
+spotipy_start/songIDListTimeout2.txt
+spotipy_start/timeoutSearch2.txt
+spotipy_start/topSongsJSONTimeout2.txt

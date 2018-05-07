@@ -10,12 +10,15 @@ client_credentials_manager = SpotifyClientCredentials(client_id="19a5e88685af467
 
 spotify = spotipy.Spotify(client_credentials_manager=client_credentials_manager,requests_timeout=10)
 results = ''
-fileOut = open("audioInfo.txt","w")
+fileOut = open("audioInfo2.txt","w")
 
-with open("songIDList.txt","r",encoding="UTF-8") as fileIn:
+with open("songIDListTimeout2.txt","r",encoding="UTF-8") as fileIn:
 	for line in fileIn:
 		line = line.strip("\n")
 		print(line)
-		results = spotify.audio_analysis(line)
+		try:
+			results = spotify.audio_analysis(line)
+		except:
+			print("Error, skipping and continuing")
 		fileOut.write(json.dumps(results))
 		fileOut.write("\n")

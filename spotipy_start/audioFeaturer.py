@@ -9,17 +9,20 @@ client_credentials_manager = SpotifyClientCredentials(client_id="19a5e88685af467
 
 spotify = spotipy.Spotify(client_credentials_manager=client_credentials_manager,requests_timeout=10)
 results = ''
-fileOut = open("audioFeaturesTimeout.txt","w")
+fileOut = open("audioFeaturesTimeout2.txt","w")
 idList = []
 # Audio features takes a list of song IDs and returns their features
 # Spotipy says it maxes at 50 IDs, but Spotify's API claims you can use 100 at a time
-with open("songIDListTimeout.txt","r",encoding="UTF-8") as fileIn:
+with open("songIDListTimeout2.txt","r",encoding="UTF-8") as fileIn:
 	for line in fileIn:
 		line = line.strip("\n")
 		idList.append(line)
 		if( len(idList) >= 50 ):
 			print("another 50 done")
-			results = spotify.audio_features(idList)
+			try:
+				results = spotify.audio_features(idList)
+			except:
+				print("these 50 broke, skipping")
 			fileOut.write(json.dumps(results))
 			fileOut.write("\n")
 			idList.clear()
