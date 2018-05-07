@@ -1,0 +1,6 @@
+python artistSearchButWithTimeouts.py
+python jsonLinesToArtistIDs.py
+python topSongerButWithTimeouts.py
+python jsonLinesToSongIDs.py
+python audioFeaturer.py
+pause

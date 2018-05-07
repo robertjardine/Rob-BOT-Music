@@ -14,7 +14,7 @@ fileOut = open("topSongsJSON.txt","w")
 with open("artistIDList.txt","r",encoding="UTF-8") as fileIn:
 	for line in fileIn:
 		line = line.strip("\n")
-		print(line)
+		#print(line)
 		results = spotify.artist_top_tracks(artist_id=line,country='US')
 		fileOut.write(json.dumps(results))
 		fileOut.write("\n")
