@@ -13,7 +13,7 @@ results = ''
 
 fileOut = open("timeoutSearch.txt","w")
 for i in range(5):
-	#print(i)
+	print(i)
 	for letter in alphabet:
 		results = spotify.search(q='artist:'+letter + "*", type='artist',limit=50,offset=50*i)
 		fileOut.write(json.dumps(results))

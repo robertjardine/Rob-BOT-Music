@@ -10,11 +10,13 @@ client_credentials_manager = SpotifyClientCredentials(client_id="19a5e88685af467
 spotify = spotipy.Spotify(client_credentials_manager=client_credentials_manager,requests_timeout=1000)
 results = ''
 fileOut = open("topSongsJSON.txt","w")
+i=0
 
 with open("artistIDList.txt","r",encoding="UTF-8") as fileIn:
 	for line in fileIn:
 		line = line.strip("\n")
-		#print(line)
+		i = i+1
+		print(i)
 		try:
 			results = spotify.artist_top_tracks(artist_id=line,country='US')
 		except:
