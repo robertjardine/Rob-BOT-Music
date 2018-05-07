@@ -1,6 +1,6 @@
 import json
 
-with open('timeoutSearch.txt','r') as f, open('artistIDListTimeout.txt','w',errors='replace') as g: 
+with open('timeoutSearch.txt','r') as f, open('artistIDList.txt','w',errors='replace') as g: 
     for x in f:
         x = x.rstrip()
         if not x: continue

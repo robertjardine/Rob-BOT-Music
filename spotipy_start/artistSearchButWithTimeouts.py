@@ -11,9 +11,8 @@ spotify = spotipy.Spotify(client_credentials_manager=client_credentials_manager,
 alphabet = 'abcdefghijklmnopqrstuvwxyz'
 results = ''
 
-fileOut = open("timeoutSearch2.txt","w")
-for i in range(2000):
-	sleep(0.1)
+fileOut = open("timeoutSearch.txt","w")
+for i in range(5):
 	print(i)
 	for letter in alphabet:
 		results = spotify.search(q='artist:'+letter + "*", type='artist',limit=50,offset=50*i)

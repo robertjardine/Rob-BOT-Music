@@ -1,0 +1,6 @@
+Do in order:
+artistSearchButWithTimeouts.py
+jsonLinesToArtistIDs.py
+topSongerButWithTimeouts.py
+jsonLinesToSongIDs.py
+audioFeaturer.py

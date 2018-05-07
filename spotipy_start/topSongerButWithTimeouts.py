@@ -9,9 +9,9 @@ client_credentials_manager = SpotifyClientCredentials(client_id="19a5e88685af467
 
 spotify = spotipy.Spotify(client_credentials_manager=client_credentials_manager,requests_timeout=1000)
 results = ''
-fileOut = open("topSongsJSONTimeout2.txt","w")
+fileOut = open("topSongsJSON.txt","w")
 
-with open("artistIDListTimeout.txt","r",encoding="UTF-8") as fileIn:
+with open("artistIDList.txt","r",encoding="UTF-8") as fileIn:
 	for line in fileIn:
 		line = line.strip("\n")
 		print(line)
