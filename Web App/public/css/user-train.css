@@ -1,0 +1,18 @@
+body {
+    height: 100%;
+    width: 100%;
+    background: black;
+}
+
+h1, h3, span {
+    text-align: center;
+    color: white;
+}
+
+#song-rating {
+    text-align: center
+}
+
+iframe {
+    margin-left: 100px;
+}

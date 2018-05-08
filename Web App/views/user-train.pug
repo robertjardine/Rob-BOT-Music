@@ -1,0 +1,34 @@
+doctype html
+head
+    title Let&apos;s Train! - Rob-BOT
+    link(rel='stylesheet' href='../css/user-train.css')
+body
+    // Display Random Song  Info
+    - var index = 0;
+
+
+    h1 Let's Train
+
+    #song-info
+        h1#song-name= randomTrackInfo[index].name
+        - var artistsNames;
+        each artist in randomTrackInfo[index].artists
+            h3= artist.name
+        h3#album-name= randomTrackInfo[index].album.name
+
+    // Allow User To Listen
+    #song-playback
+        iframe(src="https://open.spotify.com/embed?uri=spotify:track:" + randomTrackInfo[index].id, width="600", height="80", frameborder="0", allowtransparency="true", allow="encrypted-media")
+
+    br
+    br
+    br
+
+    h1 Do you like this song?
+
+    #song-rating
+        // Update trainer
+        button(type='button', onclick="submitLikeForm('" + JSON.stringify(randomTrackInfo[index]) + "', '" + JSON.stringify(audioInfo[index]) + "')") LIKE
+        button(type='button', onclick="submitDislikeForm('" + JSON.stringify(randomTrackInfo[index]) + "', '" + JSON.stringify(audioInfo[index]) + "')") DISLIKE
+
+    script(src='../js/train.js')
