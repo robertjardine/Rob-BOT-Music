@@ -4,7 +4,7 @@ const path = require('path');
 const bodyparser = require('body-parser');
 const fs = require('fs');
 const readline = require('readline');
-var request = require('request'); // "Request" library
+var request = require('request');
 var querystring = require('querystring');
 var cookieParser = require('cookie-parser');
 
@@ -24,31 +24,24 @@ app.use(bodyparser.json());
 app.use(bodyparser.urlencoded({extended: false}));
 app.use(express.static(__dirname + '/public'));
 
-/* 
- * ROUTES 
- */
+// CONSTANT VARIABLES
+const client_id = '19a5e88685af46759ece15d390334bd5'; // Your client id
+const client_secret = '25e0127d9eb9466aa7d4e7f92176a535'; // Your secret
+const redirect_uri = 'http://localhost:8888/callback'; // Your redirect uri
+// your application requests authorization
+const authOptions = {
+    url: 'https://accounts.spotify.com/api/token',
+    headers: {
+        'Authorization': 'Basic ' + (new Buffer(client_id + ':' + client_secret).toString('base64'))
+    },
+    form: {
+        grant_type: 'client_credentials'
+    },
+    json: true
+};
 
-// GET ALL OF THE PLAYLIST SONG INFORMATION
-app.get('/', (req, res) => {
-
-    let network = new brain.NeuralNetwork();
-    let recommendPlaylist = [];
-    // Get Neural Network from file
-    const networkPromise = new Promise((resolve, reject) => {
-        fs.readFile('./data/neural-network.txt', (err, data) => {
-            if (err) {
-                console.log("/ Darn...");
-                reject('/ networkPromise Failure');
-            }
-            network.fromJSON(JSON.parse(data));
-            console.log("/ NETWORK LOADED");
-            resolve('/ networkPromise Success');
-        });
-    });
-
-    // Get all song information
-    let songInfo = [];
-    const songInfoPromise = new Promise((resolve, reject) => {
+function getSongInfo(songInfo) {
+    return new Promise((resolve, reject) => {
         var lineReader = readline.createInterface({
             input: fs.createReadStream('./data/song-info.txt')
         });
@@ -71,90 +64,97 @@ app.get('/', (req, res) => {
             resolve("/ songInfoPromise Success");
         });
     });
+}
+
+function getPlaylistItems(songInfo, network) {
+    let recommendPlaylist = [];
+    for (let i=0; i<songInfo.length; i++) {
+        let rating = network.run({
+            acousticness: songInfo[i].acousticness,
+            danceability: songInfo[i].danceability,
+            energy: songInfo[i].energy,
+            instrumentalness: songInfo[i].instrumentalness,
+            liveness: songInfo[i].liveness,
+            speechiness: songInfo[i].speechiness,
+            valence: songInfo[i].valence
+        });
+        // let rating = network.run({input: songInfo[i]});
+        let currSong = {
+            rating: rating,
+            songInfo: songInfo[i]
+        };
+        if (i < 20) {
+            recommendPlaylist.push( currSong );
+        } else {
+            let minimum = -1;
+            for (let j=0; j<20; j++) {
+                if (currSong.rating.like > recommendPlaylist[j].rating.like) {
+                    recommendPlaylist.push(currSong);
+                    minimum = j;
+                    break;
+                }
+            }
+            if (minimum !== -1) {
+                for (let k=0; k<recommendPlaylist; k++) {
+                    if (recommendPlaylist[minimum].rating.like > recommendPlaylist[k].rating.like) {
+                        minimum = k;
+                    }
+                }
+                recommendPlaylist.splice(minimum, 1);
+            }
+        }
+    }
+    return recommendPlaylist;
+}
+
+function getTrackInfo(trackId, stuff, index) {
+    return new Promise((resolve, reject) => {
+        request.post(authOptions, (error, response, body) => {
+            var token = body.access_token;
+            var options = {
+                url: 'https://api.spotify.com/v1/tracks/' + trackId,
+                headers: {
+                    'Authorization': 'Bearer ' + token
+                },
+                json: true
+            };
+            request.get(options, function(error, response, body) {
+                stuff[index] = body;
+                resolve("/ trackInfo GOOD");
+            });
+        });
+    });
+}
+
+/* 
+ * ROUTES 
+ */
+
+// GET ALL OF THE PLAYLIST SONG INFORMATION
+app.get('/playlist', (req, res) => {
+    let network = new brain.NeuralNetwork();
+    // Get Neural Network from file
+    const networkPromise = loadNeuralNetwork(network);
+
+    // Get all song information
+    let songInfo = [];
+    const songInfoPromise = getSongInfo(songInfo);
+    
     let promises = [];
     Promise.all([networkPromise, songInfoPromise]).then(() => {
         // GET TOP 20 SONG RECOMMENDATIONS
-        
-        for (let i=0; i<songInfo.length; i++) {
-            let currSong = {
-                rating: network.run({
-                    acousticness: songInfo[i].acousticness,
-                    danceability: songInfo[i].danceability,
-                    duration_ms: songInfo[i].duration_ms,
-                    energy: songInfo[i].energy,
-                    instrumentalness: songInfo[i].instrumentalness,
-                    key: songInfo[i].key,
-                    liveness: songInfo[i].liveness,
-                    loudness: songInfo[i].loudness,
-                    mode: songInfo[i].mode,
-                    speechiness: songInfo[i].speechiness,
-                    tempo: songInfo[i].tempo,
-                    time_signature: songInfo[i].time_signature,
-                    valence: songInfo[i].valence
-                }),
-                songInfo: songInfo[i]
-            };
-            if (i < 20) {
-                recommendPlaylist.push({ currSong });
-            } else {
-                var minimum = -1;
-                for (let j=0; j<recommendPlaylist.length; j++) {
-                    if (currSong.rating[0] > recommendPlaylist[j].currSong.rating[0]) {
-                        recommendPlaylist.push(currSong);
-                        minimum = j;
-                        break;
-                    }
-                    // Else nothing needs to be done
-                }
-                if (minimum !== -1) {
-                    for (let k=0; k<recommendPlaylist; k++) {
-                        if (minimum > recommendPlaylist[k].currSong.rating) {
-                            minimum = recommendPlaylist[k].currSong.rating;
-                        }
-                    }
-                    array.splice(minimum, 1);
-                }
-            }
-        }
+        let recommendPlaylist = getPlaylistItems(songInfo, network);
         let promises = [];
-        for (let i=0; i<recommendPlaylist.length; i++) {
-            const trackPromise = new Promise((resolve, reject) => {
-                var client_id = '19a5e88685af46759ece15d390334bd5'; // Your client id
-                var client_secret = '25e0127d9eb9466aa7d4e7f92176a535'; // Your secret
-                var redirect_uri = 'http://localhost:8888/callback'; // Your redirect uri
-                // your application requests authorization
-                var authOptions = {
-                    url: 'https://accounts.spotify.com/api/token',
-                    headers: {
-                        'Authorization': 'Basic ' + (new Buffer(client_id + ':' + client_secret).toString('base64'))
-                    },
-                    form: {
-                        grant_type: 'client_credentials'
-                    },
-                    json: true
-                };
-                request.post(authOptions, (error, response, body) => {
-                    var token = body.access_token;
-                    var options = {
-                        url: 'https://api.spotify.com/v1/tracks/' + songInfo[i].id,
-                        headers: {
-                        'Authorization': 'Bearer ' + token
-                        },
-                        json: true
-                    };
-                    request.get(options, function(error, response, body) {
-                        recommendPlaylist[i].trackInfo = body;
-                        resolve("/ trackInfo GOOD");
-                    });
-                });
-            });
-            promises.push(trackPromise);
+        let trackInfo = [...Array(recommendPlaylist.length)];
+        for (let i=0; i<recommendPlaylist.length; i++) {     
+            promises.push(getTrackInfo(recommendPlaylist[i].songInfo.id, trackInfo, i));
         }
 
         Promise.all(promises).then(() => {
             // RENDER PAGE
             res.render('main', {
-                playlist: recommendPlaylist
+                playlist: recommendPlaylist,
+                trackInfo: trackInfo
             }); 
         });   
     });
@@ -166,21 +166,8 @@ app.get('/train', (req, res) => {
     let trackInfo = [...Array(20)];
     let audioInfo = [...Array(20)];
 
-
-    // Read file
-    const readFilePromise = new Promise((resolve, reject) => {
-        var lineReader = readline.createInterface({
-            input: fs.createReadStream('./data/song-objects.txt')
-        });
-          
-        lineReader.on('line', (line) => {
-            songIds.push(line);
-        });
-
-        lineReader.on('close', () => {
-            resolve("/train readFilePromise Success");
-        });
-    });    
+    // Get all Song Ids
+    const readFilePromise = getSongObjects(songIds);
 
     readFilePromise.then(() => {
         for (let i=0; i<20; i++) {
@@ -188,190 +175,181 @@ app.get('/train', (req, res) => {
             let randomSong = songIds[randomIndex];
             result.push(randomSong);
         }
-    }).then(() => {
-        var client_id = '19a5e88685af46759ece15d390334bd5'; // Your client id
-        var client_secret = '25e0127d9eb9466aa7d4e7f92176a535'; // Your secret
-        var redirect_uri = 'http://localhost:8888/callback'; // Your redirect uri
-        // your application requests authorization
-        var authOptions = {
-            url: 'https://accounts.spotify.com/api/token',
-            headers: {
-                'Authorization': 'Basic ' + (new Buffer(client_id + ':' + client_secret).toString('base64'))
-            },
-            form: {
-                grant_type: 'client_credentials'
-            },
-            json: true
-        };
         var promises = [];
-        const reqPromise = new Promise((resolve, reject) => {
-            for (let i=0; i<result.length; i++) {
-                let loopPromise = new Promise((resolveLoop, reject) => {
-                    request.post(authOptions, (error, response, body) => {
-                        var token = body.access_token;
-                        var options = {
-                            url: 'https://api.spotify.com/v1/tracks/' + result[i],
-                            headers: {
-                            'Authorization': 'Bearer ' + token
-                            },
-                            json: true
-                        };
-                        request.get(options, function(error, response, body) {
-                            trackInfo[i] = body;
-                            resolveLoop("loopPromise GOOD");
-                        });
-                    });
-                });
-                let audioPromise = new Promise((resolveLoop, reject) => {
-                    request.post(authOptions, (error, response, body) => {
-                        var token = body.access_token;
-                        var options = {
-                            url: 'https://api.spotify.com/v1/audio-features/' + result[i],
-                            headers: {
-                            'Authorization': 'Bearer ' + token
-                            },
-                            json: true
-                        };
-                        request.get(options, function(error, response, body) {
-                            audioInfo[i] = body;
-                            resolveLoop("audioPromise GOOD");
-                        });
-                    });
-                });
-                promises.push(loopPromise);
-            }
-        });
-        
-        Promise.all(promises).then(() => {
+        for (let i=0; i<result.length; i++) {
+            promises.push(getTrackInfo(result[i], trackInfo, i));
+            promises.push(getAudioFeatures(result[i], audioInfo, i));
+        }
+        Promise.all(promises).then((value) => {
             res.render('user-train', {
                 randomTrackInfo: trackInfo,
-                audioInfo: audioInfo
+                audioInfo: audioInfo,
+                index: 0
             });
         });
     })
 });
 
 // Update network when song liked
-app.get('/like', (req, res) => {
-    let songInfo = JSON.parse(req.query.songInfo);
+app.get('/rating', (req, res) => {
     let audioInfo = JSON.parse(req.query.audioInfo);
+    let index = Number(req.query.index);
+    let likeOrUnlike = Number(req.query.likeOrUnlike);
+    let songInfo = [...Array(20)];
 
     let network = new brain.NeuralNetwork();
+    const neuralNetworkPromise = updateNeuralNetwork(audioInfo, network, likeOrUnlike, index);
 
-    // Write Neural Network as JSON object
-    var stats = fs.statSync('./data/neural-network.txt');
-    var fileSizeInBytes = stats["size"];
-    if (fileSizeInBytes > 0) {
-        // Read & Update Network
-        const readPromise = new Promise((resolve, reject) => {
-            fs.readFile('./data/neural-network.txt', (err, data) => {
-                if (err) {
-                    reject('/like readPromise Failure');
-                } else {
-                    network.fromJSON(JSON.parse(data));
-                    resolve('/like readPromise Success');
-                }
-            });
-        }).then(() => {
-            //Update Info
-            network.train({input: {
-                acousticness: audioInfo.acousticness,
-                danceability: audioInfo.danceability,
-                duration_ms: audioInfo.duration_ms,
-                energy: audioInfo.energy,
-                instrumentalness: audioInfo.instrumentalness,
-                key: audioInfo.key,
-                liveness: audioInfo.liveness,
-                loudness: audioInfo.loudness,
-                mode: audioInfo.mode,
-                speechiness: audioInfo.speechiness,
-                tempo: audioInfo.tempo,
-                time_signature: audioInfo.time_signature,
-                valence: audioInfo.valence
-            }, output: [1]});
-
-            // Write back to file
-            fs.writeFile('./data/neural-network.txt', JSON.stringify(network), (err) => {
-                if (err) {
-                    console.log("/like Darn");
-                } 
-                console.log("/like Neural Network Saved To File");
-            });
+    neuralNetworkPromise.then(() => {
+        let songPromises = [];
+        for (let i=0; i<audioInfo.length; i++) {
+            songPromises.push(getTrackInfo(audioInfo[i].id, songInfo, i));
+        }
+        Promise.all(songPromises).then(() => {
+            res.render('user-train', {
+                randomTrackInfo: songInfo,
+                audioInfo: audioInfo,
+                index: index + 1
+            }); 
         });
-    } else {
-        // Create Network
-        network.train({input: {
-            acousticness: audioInfo.acousticness,
-            danceability: audioInfo.danceability,
-            duration_ms: audioInfo.duration_ms,
-            energy: audioInfo.energy,
-            instrumentalness: audioInfo.instrumentalness,
-            key: audioInfo.key,
-            liveness: audioInfo.liveness,
-            loudness: audioInfo.loudness,
-            mode: audioInfo.mode,
-            speechiness: audioInfo.speechiness,
-            tempo: audioInfo.tempo,
-            time_signature: audioInfo.time_signature,
-            valence: audioInfo.valence
-        }, output: [1]});
+    });
+});
+
+// Update network when song liked
+// app.get('/ratingFromPlaylist', (req, res) => {
+//     let audioInfo = JSON.parse(req.query.audioInfo);
+//     let likeOrUnlike = Number(req.query.likeOrUnlike);
+//     let songInfo = [...Array(20)];
+
+//     let network = new brain.NeuralNetwork();
+//     const neuralNetworkPromise = updateNeuralNetwork(audioInfo, network, likeOrUnlike, index);
+
+//     neuralNetworkPromise.then(() => {
+//         let songPromises = [];
+//         for (let i=0; i<audioInfo.length; i++) {
+//             songPromises.push(getTrackInfo(audioInfo[i].id, songInfo, i));
+//         }
+//         Promise.all(songPromises).then(() => {
+//             res.render('main', {
+//                 randomTrackInfo: songInfo,
+//                 audioInfo: audioInfo,
+//             }); 
+//         });
+//     });
+// });
+
+/********** Neural Network Helpers ***********/
+
+function loadNeuralNetwork(network) {
+    return new Promise((resolve, reject) => {
+        fs.readFile('./data/neural-network.txt', (err, data) => {
+            if (err) {
+                reject('/like readPromise Failure');
+            } else {
+                network.fromJSON(JSON.parse(data));
+                resolve('/like readPromise Success');
+            }
+        });
+    });
+}
+
+function writeNeuralNetwork(network) {
+    return new Promise((resolve, reject) => {
         fs.writeFile('./data/neural-network.txt', JSON.stringify(network), (err) => {
             if (err) {
                 console.log("/like Darn");
+                reject('Write Network Failure');
             } 
             console.log("/like Neural Network Saved To File");
+            resolve('Write Network Success');
         });
-    } 
-});
+    });
+}
 
-// Update network when song disliked
-app.get('/disLike', (req, res) => {
-    let songInfo = JSON.parse(req.query.songInfo);
-    let audioInfo = JSON.parse(req.query.audioInfo);
-
-    let network = new brain.NeuralNetwork();
-
-    // Write Neural Network as JSON object
-    var stats = fs.statSync('./data/neural-network.txt');
-    var fileSizeInBytes = stats["size"];
-    if (fileSizeInBytes > 0) {
-        // Read & Update Network
-        const readPromise = new Promise((resolve, reject) => {
-            fs.readFile('./data/neural-network.txt', (err, data) => {
-                if (err) {
-                    reject('/disLike readPromise Failure');
-                } else {
-                    network.fromJSON(JSON.parse(data));
-                    resolve('/disLike readPromise Success');
-                }
+function updateNeuralNetwork(audioInfo, network, likeOrUnlike, index) {
+    return new Promise((resolve, reject) => {
+        var stats = fs.statSync('./data/neural-network.txt');
+        var fileSizeInBytes = stats["size"];
+        let promises = [];
+        if (fileSizeInBytes > 0) {
+            // Read & Update Network
+            promises.push(loadNeuralNetwork(network));
+        }
+        Promise.all(promises).then(() => {
+            if (likeOrUnlike === 1) {
+                network.train([{
+                    input: {
+                        acousticness: audioInfo.acousticness,
+                        danceability: audioInfo.danceability,
+                        energy: audioInfo.energy,
+                        instrumentalness: audioInfo.instrumentalness,
+                        liveness: audioInfo.liveness,
+                        speechiness: audioInfo.speechiness,
+                        valence: audioInfo.valence
+                    }, 
+                    output: {like: 1, unlike: 0}
+                }]);
+            } else {
+                network.train([{
+                    input: {
+                        acousticness: audioInfo.acousticness,
+                        danceability: audioInfo.danceability,
+                        energy: audioInfo.energy,
+                        instrumentalness: audioInfo.instrumentalness,
+                        liveness: audioInfo.liveness,
+                        speechiness: audioInfo.speechiness,
+                        valence: audioInfo.valence
+                    }, 
+                    output: {like: 0, unlike: 1}
+                }]);
+            }
+            
+            const writePromise = writeNeuralNetwork(network);
+            writePromise.then(() => {
+                resolve('Update Network Success');
             });
-        }).then(() => {
-            //Update Info
-            network.train({input: audioInfo, output: 0});
+        });
+    })
+}
 
-            // Write back to file
-            fs.writeFile('./data/neural-network.txt', JSON.stringify(network), (err) => {
-                if (err) {
-                    console.log("/dislike Darn");
-                } 
-                console.log("/dislike Neural Network Saved To File");
+
+/********** Get file contents helpers **************/
+
+function getSongObjects(songIds) {
+    return new Promise((resolve, reject) => {
+        var lineReader = readline.createInterface({
+            input: fs.createReadStream('./data/song-objects.txt')
+        });
+        lineReader.on('line', (line) => {
+            songIds.push(line);
+        });
+        lineReader.on('close', () => {
+            resolve("/train readFilePromise Success");
+        });
+    });   
+}
+
+function getAudioFeatures(trackId, audioInfo, index) {
+    return new Promise((resolveLoop, reject) => {
+        request.post(authOptions, (error, response, body) => {
+            var token = body.access_token;
+            var options = {
+                url: 'https://api.spotify.com/v1/audio-features/' + trackId,
+                headers: {
+                    'Authorization': 'Bearer ' + token
+                },
+                json: true
+            };
+            request.get(options, function(error, response, body) {
+                audioInfo[index] = body;
+                resolveLoop("audioPromise GOOD");
             });
         });
-    } else {
-        // Create Network
-        network.train({input: audioInfo, output: 0});
-        fs.writeFile('./data/neural-network.txt', JSON.stringify(network), (err) => {
-            if (err) {
-                console.log("/dislike Darn");
-            } 
-            console.log("/dislike Neural Network Saved To File");
-        });
-    } 
-});
+    });
+}
 
-/*
- * App Listening
- */ 
+/********** App Listening ************/
+
 app.listen(port, () => {
     // Log Server started
     console.log("Express started!");

@@ -16,39 +16,28 @@ html(lang='en')
 
         link(rel='stylesheet', type='text/css', href='../css/main.css')
     body
-        - var currentSong = playlist[0].currSong.songInfo
+        - var currentSong = playlist[0].songInfo
 
         //-  Left Sidebar With Generated Playlist Information
         div#left-sidebar
-            h1 Playlist
             div#current-playlist
-                each song in playlist
+                each track in trackInfo
                     div.playlist-song
-                        p(onclick="setCurrentSong(this)", artist=song.currSong.songInfo.artist, album=song.currSong.songInfo.album)= song.currSong.songInfo.name
+                        p(onclick="setCurrentSong('" + JSON.stringify(track) + "')")= track.name
                     //-  Loop through playlist and populate items on load/update
 
         div#main-content
-            //-  Multiple Tabs for Song Info 
-            div#tabs
-                div.row.text-center
-                    div.col-lg-3
-                    div.col-lg-2
-                        span Playing
-                    div.col-lg-2
-                        span Artist
-                    div.col-lg-2
-                        span Album
-                    div.col-lg-3
 
             div
                 //- Current Song Information 
                 //-     New Generated Name Information 
                 //-     Default Visible 
                 div#current-song
-                    h1#curr-name= currentSong.name
-                    h3#curr-artist= currentSong.artist
-                    h3#curr-album= currentSong.album
-                    div#album-art
+                    h1#curr-name= trackInfo[0].name
+                    each artist in trackInfo[0].artists
+                        h3.artists= artist.name
+                    h3#curr-album= trackInfo[0].album.name
+                    image#album-art(src=trackInfo[0].album.images[1].url)
         
                 //-  Default Hidden 
                 div#artist-tab
@@ -62,7 +51,11 @@ html(lang='en')
                 div#like-dislike
                     //-  On-Click Update The Neural Network And Playlist 
                         //-  Do Asynchronous (Promise/Callback) For Better User Experience 
-                    iframe(src="https://open.spotify.com/embed?uri=spotify:track:" + currentSong.id, width="600", height="80", frameborder="0", allowtransparency="true", allow="encrypted-media")
-                    //- iframe(src="https://open.spotify.com/embed?uri=spotify:track:58AygtvW5GvLn0X3olPF2d", width="600", height="80", frameborder="0", allowtransparency="true", allow="encrypted-media")
-
+                    iframe#song-src(src="https://open.spotify.com/embed?uri=spotify:track:" + currentSong.id, width="600", height="80", frameborder="0", allowtransparency="true", allow="encrypted-media")
+                    //- div
+                    //-     button(type='button', onclick="submitRatingFromPlaylist('" + JSON.stringify(trackInfo[0]) + "', '" + JSON.stringify(currentSong) + "')") LIKE
+                    //-     button(type='button', onclick="submitRatingFromPlaylist('" + JSON.stringify(trackInfo[0]) + "', '" + JSON.stringify(currentSong) + "')") DISLIKE
+        form(action="train")
+            input#train-more(type="submit", value="More Training!")
+        
         script(src="../js/train.js")

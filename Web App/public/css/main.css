@@ -3,13 +3,9 @@ body {
     width: 100%;
 }
 
-h1, h3, span {
+h1, h3, span, p {
     text-align: center;
     color: white;
-}
-
-iframe {
-    margin-left: 100px;
 }
 
 #tabs {
@@ -25,7 +21,7 @@ iframe {
     top: 0;
     right: 0;
     bottom: 0;
-    background: linear-gradient(to bottom, darkblue, darkslateblue);
+    background: linear-gradient(to bottom, #dc3545, darkslateblue);
 }
 
 #left-sidebar {
@@ -36,7 +32,8 @@ iframe {
     top: 0;
     left: 0;
     bottom: 0;
-    background: black;
+    background: linear-gradient(to bottom, #004085, #181818);;
+    overflow: scroll;
 }
 
 #artist-tab, #album-tab {
@@ -44,9 +41,47 @@ iframe {
 }
 
 #song-controls {
-    position: absolute;
-    bottom: 0;
+    /* position: absolute; */
+    /* bottom: 0;
     right: 0;
-    left: 0;
+    left: 0; */
     height: 80px;
+    width: 600px;
+    margin: auto;
+    margin-top: 50px;
+}
+
+.playlist-song {
+    border: 2px solid white;
+    
+}
+
+.playlist-song:hover {
+    background: #787878;
+    cursor: pointer;
+}
+
+#like-button {
+    float: left;
+    margin-left: 10px;
+}
+
+#dislike-button {
+    float: right;
+    margin-right: 10px;
+}
+
+#like-dislike {
+    text-align: center;
+}
+
+img {
+    display: block;
+    margin: auto;
+}
+
+#train-more {
+    top: 0;
+    right:0;
+    position: fixed;
 }

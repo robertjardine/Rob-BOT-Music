@@ -14,5 +14,10 @@ h1, h3, span {
 }
 
 iframe {
-    margin-left: 100px;
+    display: block;
+    margin: auto;
+}
+
+hr {
+    width: 70%;
 }
