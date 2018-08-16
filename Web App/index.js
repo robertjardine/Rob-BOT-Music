@@ -10,19 +10,6 @@ const index = require('./src/main/routes/index.route');
 var app = express();
 
 const PORT = process.env.CLIENT_ID;
-const CLIENT_ID = process.env.CLIENT_ID;
-const CLIENT_SECRET = process.env.CLIENT_SECRET;
-const REDIRECT_URI = process.env.REDIRECT_URI;
-const AUTH_OPTIONS = {
-    url: 'https://accounts.spotify.com/api/token',
-    headers: {
-        'Authorization': 'Basic ' + (new Buffer(CLIENT_ID + ':' + CLIENT_SECRET).toString('base64'))
-    },
-    form: {
-        grant_type: 'client_credentials'
-    },
-    json: true
-};
 
 // Hides information about the server from the header
 app.disable('x-powered-by');
