@@ -4,12 +4,12 @@
 
 # Refined Goals / Features to Implement :
 1. Get users favorited songs
-  1. Create and train network
+   1. Create and train network
 2. Use favorited and related artists' top songs to generate a suggested playlist
 
 3. Discover section with random playlist generation
-  1. Allow filters to be added for the random generation (i.e. genre, etc.)
+   1. Allow filters to be added for the random generation (i.e. genre, etc.)
 
 4. Group room with sockets
-  1. Begin by reading each user's favorites to generate
-  2. Allow each user to pause, skip or replay a song for the room
+   1. Begin by reading each user's favorites to generate
+   2. Allow each user to pause, skip or replay a song for the room
