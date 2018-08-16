@@ -13,3 +13,7 @@
 4. Group room with sockets
    1. Begin by reading each user's favorites to generate
    2. Allow each user to pause, skip or replay a song for the room
+
+# Local Setup
+1. In the Web App directory, create a file named '.env'
+   1. Add CLIENT_ID, CLIENT_SECRET, REDIRECT_URI, and PORT with values
