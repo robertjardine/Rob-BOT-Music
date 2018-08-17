@@ -5,7 +5,8 @@ const bodyparser = require('body-parser');
 const dotenv = require('dotenv');
 dotenv.config();
 
-const index = require('./src/main/routes/index.route');
+const index = require('./src/main/routes/authorize.route');
+const discover = require('./src/main/routes/discover.route');
 
 var app = express();
 
@@ -24,6 +25,7 @@ app.use(express.static(__dirname + '/public'));
 
 // Routes
 app.use('/', index);
+app.use('discover', discover);
 
 // Catch 404
 app.use(function(req, res, next) {
