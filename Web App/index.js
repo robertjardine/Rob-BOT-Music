@@ -10,7 +10,7 @@ const discover = require('./src/main/routes/discover.route');
 
 var app = express();
 
-const PORT = process.env.CLIENT_ID;
+const PORT = process.env.PORT;
 
 // Hides information about the server from the header
 app.disable('x-powered-by');
@@ -41,5 +41,5 @@ app.use(function(err, req, res, next) {
 
  //App Listening
 app.listen(PORT, () => {
-    console.log("Express started!");
+    console.log(`Express started on port ${PORT}!`);
 });
