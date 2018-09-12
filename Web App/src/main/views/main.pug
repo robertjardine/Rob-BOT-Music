@@ -5,6 +5,8 @@ html(lang='en')
         meta(http-equiv='X-UA-Compatible', content='IE=edge') 
         meta(name='viewport', content="width=device-width", initial-scale=1)
 
+        script(src='https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js')
+
         title Let's Listen! - Rob-BOT
 
         link(rel='stylesheet', type='text/css', href='../css/main.css')
@@ -14,7 +16,6 @@ html(lang='en')
         div#left-sidebar
             div#current-playlist
                 each track in randomTrackInfo
-                    //- - console.log(track);
                     div.playlist-song
                         p(onclick="setCurrentSong('" + JSON.stringify(track) + "')")= track.name
 
@@ -31,3 +32,4 @@ html(lang='en')
 
             div#song-controls
                 iframe#song-src(src="https://open.spotify.com/embed?uri=spotify:track:" + currentSong.id, width="600", height="80", frameborder="0", allowtransparency="true", allow="encrypted-media")
+        script(src='../js/train.js')

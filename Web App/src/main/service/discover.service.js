@@ -21,8 +21,8 @@ exports.getDiscoverPlaylist = function() {
                 artistId.then(data => {
                     let randomSong = discoverDelegate.getTopSongs(data);
                     randomSong.then(data => {
-                        let index = Math.floor(Math.random() * (data.length + 1));
-                        if (data[index] != undefined) {
+                        if (data && data.length > 0) {
+                            let index = Math.floor(Math.random() * (data.length));
                             playlist.push(data[index]);
                             resolve(data[index]);
                         } else {
