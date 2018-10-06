@@ -1,6 +1,8 @@
 node_modules/
 .env
 /.vscode
+.eslintrc.json
+.DS_Store
 
 pain4.txt
 artistIDList.txt
