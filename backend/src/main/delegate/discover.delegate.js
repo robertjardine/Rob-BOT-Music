@@ -1,20 +1,6 @@
-const request = require('request');
-const dotenv = require('dotenv');
-dotenv.config();
+const spotifyDelegate = require('../delegate/spotify.delegate');
 
 const MAX_OFFSET = 9999;
-const CLIENT_ID = process.env.CLIENT_ID;
-const CLIENT_SECRET = process.env.CLIENT_SECRET;
-const AUTH_OPTIONS = {
-    url: 'https://accounts.spotify.com/api/token',
-    headers: {
-        'Authorization': 'Basic ' + (new Buffer(CLIENT_ID + ':' + CLIENT_SECRET).toString('base64'))
-    },
-    form: {
-        grant_type: 'client_credentials'
-    },
-    json: true
-};
 
 /**
  * Retrieve a random artist id from the Spotify API
@@ -25,7 +11,7 @@ exports.getRandomArtist = function() {
     return new Promise((resolve, reject) => {
         let offset = Math.floor(Math.random() * (MAX_OFFSET + 1));
         let url = `https://api.spotify.com/v1/search?q=year%3A0000-9999&type=artist&limit=1&offset=${offset}`;
-        requestToSpotify(url)
+        spotifyDelegate.requestToSpotify(url)
             .then(data => resolve(data.artists.items[0].id))
             .catch(error => reject(error));
     });
@@ -39,34 +25,8 @@ exports.getRandomArtist = function() {
 exports.getTopSongs = function(artistId) {
     return new Promise((resolve, reject) => {
         let url = `https://api.spotify.com/v1/artists/${artistId}/top-tracks?country=US`;
-        requestToSpotify(url)
+        spotifyDelegate.requestToSpotify(url)
             .then(data => resolve(data.tracks))
             .catch(error => reject(error));
     });  
-}
-
-/**
- * Make a GET request to the Spotify API with the given url
- * @param { string } url Address for the GET request to the Spotify API
- * @returns { Promise } Contains the response data
- */
-function requestToSpotify(url) {
-    return new Promise((resolve, reject) => {
-        request.post(AUTH_OPTIONS, (error, response, body) => {
-            let token = body.access_token;
-            let options = {
-                url: url,
-                headers: {
-                    'Authorization': 'Bearer ' + token
-                },
-                json: true
-            };
-            request.get(options, function(error, response, body) {
-                if (error) {
-                    reject(error);
-                }
-                resolve(body);
-            });
-        });
-    });
 }
