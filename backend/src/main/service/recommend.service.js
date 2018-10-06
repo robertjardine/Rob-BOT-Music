@@ -18,7 +18,7 @@ exports.getPlaylist = function(userId) {
         let topSongIds = recommendDelegate.getTopSongs(relatedArtists);
         let topSongsAudioFeatures = recommendDelegate.getAudioFeatures(topSongIds);
         let playlist = getRecommendations(network, topSongsAudioFeatures);
-        return playlist;
+        resolve(playlist);
     });
 }
 

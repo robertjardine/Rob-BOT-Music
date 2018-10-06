@@ -11,13 +11,13 @@ html(lang='en')
 
         link(rel='stylesheet', type='text/css', href='../css/main.css')
     body
-        - var currentSong = randomTrackInfo[0]
+        - var currentSong = randomTracks[0]
 
         div#left-sidebar
             div#current-playlist
-                each track in randomTrackInfo
+                each track in randomTracks
                     div.playlist-song
-                        p(onclick="setCurrentSong('" + JSON.stringify(track) + "')")= track.name
+                        p= track.name
 
         div#main-content
             div

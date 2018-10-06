@@ -1,10 +1,3 @@
-/**
- * 1. Get favorites
- * 2. Get all artist from favorites
- * 3. Get all related artists from artists
- * 4. Collect all top songs from all the artists
- * 5. Run in network and get top results
- */
 const request =  require('request');
 
 const AUTH_OPTIONS = {
@@ -19,16 +12,76 @@ const AUTH_OPTIONS = {
 };
 
 exports.getFavorites = function() {
+    let url = `https://api.spotify.com/v1/me/tracks`;
+    requestToSpotify(url)
+        .then(data => data)
+        .catch(error => error);
+}
+
+/**
+ * Get the artist for the given artist id
+ * @param { number } artistId Unique identifier for an artist in the Spotify API
+ * @return { Artist } Artist object found by given id
+ */
+exports.getArtistByArtistId = function(artistId) {
+    let url = `https://api.spotify.com/v1/artists/${id}`;
+    requestToSpotify(url)
+        .then(data => data)
+        .catch(error => error);
+}
+
+/**
+ * Get related artists for the given artist id
+ * @param { number } artistId Unique identifier for an artist in the Spotify API
+ * @return { Artist[] } List of Artist objects
+ */
+exports.getRelatedArtistByArtistId = function(artistId) {
+    let url = `https://api.spotify.com/v1/artists/${artistId}/related-artists`;
+    requestToSpotify(url)
+        .then(data => data)
+        .catch(error => error);
+}
+
+/**
+ * Get the top songs for a given artist id
+ * @param { number } artistId 
+ * @return { number[] } Array of ids for the retrieved top songs
+ */
+exports.getTopSongsByArtistId = function(artistId) {
+    let url = `https://api.spotify.com/v1/artist/${artistId}/top-songs`;
+    requestToSpotify(url)
+        .then(data => data)
+        .catch(error => error);
+}
+
+/**
+ * Retrieve the audio features for a given track id in the Spotify API
+ * @param { number } trackId Unique id for a track within the Spotify API
+ * @return { AudioFeatures } Object with audio features for a given track id
+ */
+exports.getAudioFeaturesByTrackId = function(trackId) {
+    let url = `https://api.spotify.com/v1/tracks/audio-features/${trackId}`;
+    requestToSpotify(url)
+        .then(data => data)
+        .catch(error => error);
+}
+
+/**
+ * Make a GET request to the Spotify API with the given url
+ * @param { string } url Address for the GET request to the Spotify API
+ * @returns { Promise } Contains the response data
+ */
+function requestToSpotify(url) {
     return new Promise((resolve, reject) => {
         request.post(AUTH_OPTIONS, (error, response, body) => {
-            var token = body.access_token;
-            var options = {
-                url: "https://api.spotify.com/v1/me/tracks",
+            let token = body.access_token;
+            let options = {
+                url: url,
                 headers: {
                     'Authorization': 'Bearer ' + token
                 },
                 json: true
-            };
+            }
             request.get(options, function(error, response, body) {
                 if (error) {
                     reject(error);
@@ -36,114 +89,5 @@ exports.getFavorites = function() {
                 resolve(body);
             });
         });
-    });
-}
-
-/**
- * TODO: Returns before finished
- */
-exports.getMainArtists = function(trackIds) { 
-    return new Promise((resolve, reject) => {
-        let artistIds = [];
-        for (let id in trackIds) {
-            request.post(AUTH_OPTIONS, (error, response, body) => {
-                var token = body.access_token;
-                var options = {
-                    url: "https://api.spotify.com/v1/artists",
-                    headers: {
-                        'Authorization': 'Bearer ' + token
-                    },
-                    id: id,
-                    json: true
-                };
-                request.get(options, function(error, response, body) {
-                    if (error) {
-                        reject(error);
-                    }
-                    artistIds.push(body.id);
-                });
-            });
-        }
-        return artistIds;
-    });
-}
-
-exports.getRelatedArtists = function(artistIds) {
-    return new Promise((resolve, reject) => {
-        let artists = [];
-        request.post(AUTH_OPTIONS, (error, response, body) => {
-            for (let id in artistIds) {
-                var token = body.access_token;
-                var options = {
-                    url: "https://api.spotify.com/v1/artists/" + id + "/related-artists",
-                    headers: {
-                        'Authorization': 'Bearer ' + token
-                    },
-                    json: true
-                }
-                request.get(options, function(error, response, body) {
-                    if (error) {
-                        reject(error);
-                    }
-                    // Add array result to final array
-                    for (let artist in body) {
-                        artists.push(artist.id);
-                    }
-                });   
-            }
-            resolve(artists);
-        });
-    });
-}
-
-exports.getTopSongs = function(artistIds) {
-    return new Promise((resolve, reject) => {
-        let trackIds = [];
-        for (let id in artistIds) {
-            request.post(AUTH_OPTIONS, (error, response, body) => {
-                var token = body.access_token;
-                var options = {
-                    url: "https://api.spotify.com/v1/artist/" + id + "/top-songs",
-                    headers: {
-                        'Authorization': 'Bearer ' + token
-                    },
-                    json: true
-                }
-                request.get(options, function(error, response, body) {
-                    if (error) {
-                        reject(error);
-                    }
-                    for (let track in body) {
-                        trackIds.push(track.id);
-                    }
-                });
-            });
-        }
-        resolve(trackIds);
-    });
-}
-
-exports.getAudioFeatures = function(trackIds) {
-    return new Promise((resolve, reject) => {
-        let tracks = [];
-        for (let id in trackIds) {
-            request.post(AUTH_OPTIONS, (error, response, body) => {
-                var token = body.access_token;
-                var options = {
-                    url: "https://api.spotify.com/v1/tracks/audio-features" + id,
-                    headers: {
-                        'Authorization': 'Bearer ' + token
-                    },
-                    json: true
-                }
-                request.get(options, function(error, response, body) {
-                    if (error) {
-                        reject(error);
-                    }
-                    tracks.concat(body);
-                });
-            });
-        }
-        resolve(tracks);
     });
 }
