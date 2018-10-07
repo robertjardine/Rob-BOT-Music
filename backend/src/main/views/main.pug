@@ -17,19 +17,19 @@ html(lang='en')
             div#current-playlist
                 each track in randomTracks
                     div.playlist-song
-                        p= track.name
+                        p(onclick="setCurrentSong('" + track.id + "')")= track.name
 
         div#main-content
-            div
-                div#current-song
-                    h1#curr-name= currentSong.name
+            div#current-song
+                h1#curr-name= currentSong.name
+                div#artists
                     each artist in currentSong.artists
                         h3.artists= artist.name
-                    h3#curr-album= currentSong.album.name
-                    image#album-art(src=currentSong.album.images[1].url)
-                div#artist-tab
-                div#album-tab
+                h3#curr-album= currentSong.album.name
+                image#album-art(src=currentSong.album.images[1].url)
+            div#artist-tab
+            div#album-tab
 
             div#song-controls
                 iframe#song-src(src="https://open.spotify.com/embed?uri=spotify:track:" + currentSong.id, width="600", height="80", frameborder="0", allowtransparency="true", allow="encrypted-media")
-        script(src='../js/train.js')
+        script(src='../js/main.js')

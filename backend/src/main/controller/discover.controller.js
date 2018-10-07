@@ -1,4 +1,5 @@
 const discoverService = require('../service/discover.service');
+const spotifyDelegate = require('../delegate/spotify.delegate');
 
 exports.getDiscoverPlaylist = async function(req, res) {
     try {
@@ -11,3 +12,9 @@ exports.getDiscoverPlaylist = async function(req, res) {
         }); 
     }
 };
+
+exports.getTrackById = async function(req, res) {
+    let url = `https://api.spotify.com/v1/tracks/${req.params.trackId}`;
+    let track = await spotifyDelegate.requestToSpotify(url)
+    res.send(track);
+}
